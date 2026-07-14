@@ -27,6 +27,17 @@
 | Frontend | Tauri (WebView2), Vanilla JS, HTML5, CSS3 | — |
 | UI Style | Custom Metro UI, dark theme | — |
 
+---
+
+## 📸 Screenshots
+
+<p align="center">
+  <i>Main interface</i><br>
+  <img src="screen/2.png" width="760" alt="Screenshot">
+</p>
+
+---
+
 ## Requirements
 
 - **Rust** 1.70+ (https://rustup.rs/)
