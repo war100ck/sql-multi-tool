@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Multi Tool</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body oncontextmenu="return false;">
+    <!-- Window Chrome / Title Bar -->
+    <div class="title-bar" data-tauri-drag-region>
+        <div class="title-bar-left">
+            <img class="app-icon-img" src="icon.png" alt="SQL" onerror="this.style.display='none'">
+            <span class="app-title" data-i18n="appTitle">SQL Multi Tool</span>
+        </div>
+        <div class="title-bar-right">
+            <div class="lang-switcher">
+                <button class="lang-btn active" data-lang="ru">RU</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+            <div class="connection-indicator" id="connectionIndicator">
+                <span class="dot" id="connDot"></span>
+                <span id="connText" data-i18n="notConnected">Не подключено</span>
+            </div>
+            <button class="win-btn minimize" id="btnMinimize" title="Свернуть">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+            </button>
+            <button class="win-btn maximize" id="btnMaximize" title="Развернуть">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="0"/>
+                </svg>
+            </button>
+            <button class="win-btn close" id="btnClose" title="Закрыть">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                    <line x1="6" y1="18" x2="18" y2="6"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar Tabs -->
+        <nav class="sidebar">
+            <button class="nav-item active" data-tab="restore">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 4 23 10 17 10"/>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                </svg>
+                <span class="nav-label" data-i18n="tabRestore">Восстановление</span>
+            </button>
+            <button class="nav-item" data-tab="manage">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                <span class="nav-label" data-i18n="tabManage">Управление</span>
+            </button>
+            <button class="nav-item" data-tab="settings">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span class="nav-label" data-i18n="tabSettings">Настройки</span>
+            </button>
+        </nav>
+
+        <!-- Content Area -->
+        <main class="content">
+            <!-- TAB: Restore -->
+            <section class="tab-panel active" id="tab-restore">
+                <div class="panel-header">
+                    <h2 data-i18n="restoreTitle">Восстановление базы данных</h2>
+                </div>
+                <div class="panel-body">
+                    <div class="form-row">
+                        <label class="form-label" data-i18n="backupFileLabel">Файл резервной копии (.bak)</label>
+                        <div class="input-group">
+                            <input type="text" id="bakPath" class="metro-input" readonly placeholder="Выберите файл...">
+                            <button class="metro-btn metro-btn-secondary" id="btnBrowseBak" data-i18n="browse">Обзор...</button>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label" data-i18n="folderLabel">Папка для восстановления</label>
+                        <select id="folderSelect" class="metro-select">
+                            <option value="" data-i18n="loadingFolders">Загрузка папок...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row actions-row">
+                        <button class="metro-btn metro-btn-primary" id="btnRestore" disabled>
+                            <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"/>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                            </svg>
+                            <span data-i18n="restoreBtn">Восстановить базу</span>
+                        </button>
+                        <button class="metro-btn metro-btn-secondary" id="btnClearRestore" data-i18n="clear">Очистить</button>
+                    </div>
+
+                    <div class="progress-area" id="restoreProgressArea">
+                        <div class="progress-track">
+                            <div class="progress-fill" id="restoreProgress"></div>
+                        </div>
+                        <span class="progress-text" id="restoreProgressText">0%</span>
+                    </div>
+
+                    <div class="log-area">
+                        <div class="log-header">
+                            <span class="log-title" data-i18n="logTitle">Журнал операций</span>
+                        </div>
+                        <div class="log-content" id="restoreLog"></div>
+                    </div>
+                    <div class="form-row actions-row log-actions">
+                        <button class="metro-btn metro-btn-secondary" id="btnClearLogs" data-i18n="clear">Очистить</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: Manage -->
+            <section class="tab-panel" id="tab-manage">
+                <div class="panel-header">
+                    <h2 data-i18n="manageTitle">Управление базами данных</h2>
+                    <div class="panel-actions">
+                        <button class="metro-btn metro-btn-secondary" id="btnRefreshDB">
+                            <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"/>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                            </svg>
+                            <span data-i18n="refresh">Обновить</span>
+                        </button>
+                        <button class="metro-btn metro-btn-primary" id="btnBackupDB" disabled>
+                            <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            <span data-i18n="backupSelected">Бэкап выбранных</span>
+                        </button>
+                        <button class="metro-btn metro-btn-danger" id="btnDeleteDB" disabled>
+                            <svg class="btn-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                            <span data-i18n="deleteSelected">Удалить выбранные</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body no-pad">
+                    <div class="data-table-container">
+                        <table class="metro-table" id="dbTable">
+                            <thead>
+                                <tr>
+                                    <th class="col-check"><input type="checkbox" id="selectAll"></th>
+                                    <th class="col-name" data-i18n="dbName">Название базы</th>
+                                    <th class="col-size" data-i18n="dbSize">Размер</th>
+                                    <th class="col-status" data-i18n="dbStatus">Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dbTableBody">
+                                <tr class="empty-row">
+                                    <td colspan="4" data-i18n="clickRefresh">Нажмите "Обновить" для загрузки данных</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer" id="dbStatus">0 <span data-i18n="databases">баз данных</span></div>
+                </div>
+            </section>
+
+            <!-- TAB: Settings -->
+            <section class="tab-panel" id="tab-settings">
+                <div class="panel-header">
+                    <h2 data-i18n="settingsTitle">Настройки подключения</h2>
+                </div>
+                <div class="panel-body">
+                    <div class="form-row">
+                        <label class="form-label" data-i18n="sqlServer">SQL Server</label>
+                        <input type="text" id="settingServer" class="metro-input" placeholder="localhost или IP:порт">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" data-i18n="login">Логин</label>
+                        <input type="text" id="settingUser" class="metro-input" placeholder="sa">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" data-i18n="password">Пароль</label>
+                        <input type="password" id="settingPass" class="metro-input" placeholder="••••••••">
+                    </div>
+                    <div class="form-row actions-row">
+                        <button class="metro-btn metro-btn-secondary" id="btnTestConn" data-i18n="test">Тестировать</button>
+                        <button class="metro-btn metro-btn-primary" id="btnSaveSettings" data-i18n="save">Сохранить</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <span id="statusText" data-i18n="ready">Готов к работе</span>
+        <span class="status-version">v1.0.0 | © 2026 WAR100CK</span>
+    </div>
+
+    <!-- Modal: Confirm Delete -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 data-i18n="confirmDelete">Подтвердите удаление</h3>
+            </div>
+            <div class="modal-body">
+                <p data-i18n="deleteConfirmText">Вы действительно хотите удалить выбранные базы?</p>
+                <div class="modal-db-list" id="deleteDbList"></div>
+                <p class="modal-warning" data-i18n="deleteWarning">Это действие невозможно отменить!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="metro-btn metro-btn-secondary" id="btnCancelDelete" data-i18n="cancel">Отмена</button>
+                <button class="metro-btn metro-btn-danger" id="btnConfirmDelete" data-i18n="delete">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Backup Path -->
+    <div class="modal-overlay" id="backupModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 data-i18n="createBackup">Создание бэкапа</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <label class="form-label" data-i18n="backupFolderLabel">Папка для сохранения</label>
+                    <div class="input-group">
+                        <input type="text" id="backupPathInput" class="metro-input" readonly placeholder="Выберите папку...">
+                        <button class="metro-btn metro-btn-secondary" id="btnBrowseBackup" data-i18n="browse">Обзор...</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" data-i18n="selectedDbs">Выбранные базы</label>
+                    <div class="modal-db-list" id="backupDbList"></div>
+                </div>
+                <div class="form-row">
+                    <label class="form-label" data-i18n="backupFormatLabel">Формат имени</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="modalBackupFormat" value="dated" checked>
+                            <span data-i18n="formatDatedModal">С датой: ИмяБД_20260714_145541.bak</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="modalBackupFormat" value="simple">
+                            <span data-i18n="formatSimpleModal">Простой: ИмяБД.bak</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="metro-btn metro-btn-secondary" id="btnCancelBackup" data-i18n="cancel">Отмена</button>
+                <button class="metro-btn metro-btn-primary" id="btnConfirmBackup" data-i18n="create">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
